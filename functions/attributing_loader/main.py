@@ -7,13 +7,13 @@ from google.cloud.bigquery import TimePartitioning, CreateDisposition, WriteDisp
 
 PROJECT_ID = os.getenv('GCP_PROJECT')
 CLIENT = bigquery.Client(PROJECT_ID)
-DATASET = 'sales_data_aggregated'
+DATASET = 'sales_data_attributed'
 TABLE = 'customer_123'
 CLUSTERING_FIELDS = ['contact_id']
-JOB_ID_PREFIX = 'aggregating_loader_'
+JOB_ID_PREFIX = 'attributed_loader_'
 SCHEMA = CLIENT.schema_from_json('sales_data_schema.json')
 EXTERNAL_TABLE_NAME_IN_QUERY = 'sales_data_external_table'
-QUERY_TEMPLATE_FILE = 'loader_template.sql'
+QUERY_TEMPLATE_FILE = 'loader_template1.sql'
 COMPRESSION = 'GZIP'
 LOCATION = 'EU'
 
