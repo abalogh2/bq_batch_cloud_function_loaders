@@ -1,5 +1,5 @@
 SELECT
-    contact_id
+    user_id
     , event_time
     , order_id
     , ARRAY_AGG(

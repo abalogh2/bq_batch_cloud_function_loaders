@@ -1,7 +1,7 @@
 [
       {
         "mode": "NULLABLE",
-        "name": "contact_id",
+        "name": "user_id",
         "type": "INTEGER"
       },
       {

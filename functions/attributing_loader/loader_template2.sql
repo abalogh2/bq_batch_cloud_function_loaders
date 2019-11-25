@@ -13,22 +13,22 @@ SET min_event_time = TIMESTAMP_TRUNC(TIMESTAMP_SUB(min_event_time, INTERVAL attr
 -- creating destination table
 CREATE TABLE IF NOT EXISTS `bud-gcp-meetup.sales_data_attributed.customer_123`
 (
-  contact_id INT64,
+  user_id INT64,
   event_time TIMESTAMP,
   order_id INT64,
   items ARRAY<STRUCT<item_id INT64, quantity FLOAT64, price FLOAT64>>,
   attributed_treatment STRUCT<event_time TIMESTAMP> 
 )
 PARTITION BY DATE(_PARTITIONTIME)
-CLUSTER BY contact_id
+CLUSTER BY user_id
 OPTIONS(require_partition_filter=true);
 
--- performing attribution and appending into table
+-- performing attribution and appending to table
 INSERT INTO `bud-gcp-meetup.sales_data_attributed.customer_123`
-(contact_id, event_time, order_id, items, attributed_treatment)
+(user_id, event_time, order_id, items, attributed_treatment)
     WITH sales AS (
       SELECT
-          contact_id
+          user_id
           , event_time
           , order_id
           , ARRAY_AGG(STRUCT(item_id, quantity, price)) AS items
@@ -41,19 +41,19 @@ INSERT INTO `bud-gcp-meetup.sales_data_attributed.customer_123`
     ),
     attribution AS (
       SELECT
-        sales.contact_id
+        sales.user_id
         , sales.event_time
         , sales.order_id
         , ARRAY_AGG(STRUCT(sales.items, treatments.event_time AS treatment_event_time) ORDER BY treatments.event_time DESC LIMIT 1)[ORDINAL(1)] AS ungrouped
       FROM sales
       LEFT JOIN treatments
-      ON sales.contact_id = treatments.contact_id
+      ON sales.user_id = treatments.user_id
         AND treatments.event_time BETWEEN TIMESTAMP_SUB(sales.event_time, INTERVAL attribution_window_size DAY) AND sales.event_time
-      GROUP BY sales.contact_id, sales.event_time, sales.order_id
+      GROUP BY sales.user_id, sales.event_time, sales.order_id
     )
 
     SELECT
-      contact_id
+      user_id
       , event_time
       , order_id
       , ungrouped.items

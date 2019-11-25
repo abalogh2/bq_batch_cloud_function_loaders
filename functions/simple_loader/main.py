@@ -9,9 +9,9 @@ CLIENT = bigquery.Client(PROJECT_ID)
 DATASET = 'sales_data'
 TABLE = 'customer_123'
 JOB_ID_PREFIX = 'simple_loader_'
-CLUSTERING_FIELDS = ['contact_id']
+CLUSTERING_FIELDS = ['user_id']
 SCHEMA_DICT = [
-    {"mode": "NULLABLE", "name": "contact_id", "type": "INTEGER"},
+    {"mode": "NULLABLE", "name": "user_id", "type": "INTEGER"},
     {"mode": "NULLABLE", "name": "event_time", "type": "TIMESTAMP"},
     {"mode": "NULLABLE", "name": "order_id", "type": "INTEGER"},
     {"mode": "NULLABLE", "name": "item_id", "type": "INTEGER"},
