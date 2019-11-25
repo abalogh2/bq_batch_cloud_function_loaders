@@ -18,6 +18,7 @@ SCHEMA_DICT = [
     {"mode": "NULLABLE", "name": "quantity", "type": "FLOAT"},
     {"mode": "NULLABLE", "name": "price", "type": "FLOAT"}
 ]
+LOCATION = 'EU'
 
 
 def load_from_gcs(event, context):
@@ -29,7 +30,8 @@ def load_from_gcs(event, context):
         job = CLIENT.load_table_from_uri(source_uris=uri,
                                          destination=destination_table,
                                          job_id_prefix=JOB_ID_PREFIX,
-                                         job_config=job_config)
+                                         job_config=job_config,
+                                         location=LOCATION)
 
         logging.info(f"Started job {job.job_id}")
         job.result()

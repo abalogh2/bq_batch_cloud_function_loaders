@@ -15,6 +15,7 @@ CLUSTERING_FIELDS = ['contact_id']
 QUERY_TEMPLATE_FILE = 'loader_template.sql'
 EXTERNAL_TABLE_NAME_IN_QUERY = 'sales_data_external_table'
 COMPRESSION = 'GZIP'
+LOCATION = 'EU'
 
 
 def load_from_gcs(event, context):
@@ -27,7 +28,8 @@ def load_from_gcs(event, context):
 
         job = CLIENT.query(query=query,
                            job_config=job_config,
-                           job_id_prefix=JOB_ID_PREFIX)
+                           job_id_prefix=JOB_ID_PREFIX,
+                           location=LOCATION)
 
         logging.info(f"Started job {job.job_id}")
         job.result()
