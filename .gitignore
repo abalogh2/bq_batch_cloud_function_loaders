@@ -2,3 +2,5 @@
 
 *.zip
 data
+
+/functions/*/Makefile
