@@ -18,25 +18,28 @@ COMPRESSION = 'GZIP'
 
 
 def load_from_gcs(event, context):
-    """Triggered by a change to a Cloud Storage bucket.
-    Args:
-         event (dict): Event payload.
-         context (google.cloud.functions.Context): Metadata for the event.
-    """
-    uri = f"gs://{event['bucket']}/{event['name']}"
-    destination_table = CLIENT.dataset(DATASET).table(TABLE)
-    job_config = create_job_config(uri, destination_table)
     try:
-        with open(QUERY_TEMPLATE_FILE) as query_template_file:
-            query_template = query_template_file.read()
-        job = CLIENT.query(query=query_template.format(EXTERNAL_TABLE_NAME=EXTERNAL_TABLE_NAME_IN_QUERY),
+        uri = f"gs://{event['bucket']}/{event['name']}"
+        destination_table = CLIENT.dataset(DATASET).table(TABLE)
+        job_config = create_job_config(uri, destination_table)
+        query_template = load_query_template()
+        query = query_template.format(EXTERNAL_TABLE_NAME=EXTERNAL_TABLE_NAME_IN_QUERY)
+
+        job = CLIENT.query(query=query,
                            job_config=job_config,
                            job_id_prefix=JOB_ID_PREFIX)
+
         logging.info(f"Started job {job.job_id}")
-        result = job.result()
+        job.result()
         logging.info(f"Processed {uri}")
     except Exception as err:
         logging.error(f"Error happened during processing of {uri}: {str(err)}")
+
+
+def load_query_template():
+    with open(QUERY_TEMPLATE_FILE) as query_template_file:
+        query_template = query_template_file.read()
+    return query_template
 
 
 def create_job_config(external_source_uri, destination_table):
