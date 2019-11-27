@@ -5,7 +5,9 @@ from google.cloud import bigquery
 from google.cloud.bigquery import TimePartitioning, CreateDisposition, WriteDisposition, QueryJobConfig, \
     ExternalConfig, ExternalSourceFormat
 
+
 PROJECT_ID = os.getenv('GCP_PROJECT')
+SQL_VERSION = os.getenv('SQL_VERSION')
 CLIENT = bigquery.Client(PROJECT_ID)
 DATASET = 'sales_data_attributed'
 TABLE = 'customer_123'
@@ -13,7 +15,7 @@ CLUSTERING_FIELDS = ['user_id']
 JOB_ID_PREFIX = 'attributed_loader_'
 SCHEMA = CLIENT.schema_from_json('sales_data_schema.json')
 EXTERNAL_TABLE_NAME_IN_QUERY = 'sales_data_external_table'
-QUERY_TEMPLATE_FILE = 'loader_template1.sql'
+QUERY_TEMPLATE_FILE = f'loader_template{SQL_VERSION}.sql'
 COMPRESSION = 'GZIP'
 LOCATION = 'EU'
 
@@ -45,11 +47,12 @@ def load_query_template():
 
 def create_job_config(external_source_uri):
     config = QueryJobConfig()
-    config.create_disposition = CreateDisposition.CREATE_IF_NEEDED
-    config.write_disposition = WriteDisposition.WRITE_APPEND
-    config.clustering_fields = CLUSTERING_FIELDS
-    config.time_partitioning = TimePartitioning()
-    config.destination = CLIENT.dataset(DATASET).table(TABLE)
+    if SQL_VERSION == '1':
+        config.create_disposition = CreateDisposition.CREATE_IF_NEEDED
+        config.write_disposition = WriteDisposition.WRITE_APPEND
+        config.clustering_fields = CLUSTERING_FIELDS
+        config.time_partitioning = TimePartitioning()
+        config.destination = CLIENT.dataset(DATASET).table(TABLE)
 
     external_config = ExternalConfig(ExternalSourceFormat.CSV)
     external_config.schema = SCHEMA
